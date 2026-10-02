@@ -198,6 +198,15 @@ input,select{border-radius:10px;min-height:52px}
 
 .compact-footer .disclosure{margin:0;font-size:12px;line-height:1.5}
 .compact-footer{padding:10px 0}
+
+/* Let each question end naturally, without reserved blank space. */
+.form-card{min-height:0;height:auto;max-height:none;padding-bottom:0}
+#lead-form{flex:0 0 auto}
+#step-content{flex:0 0 auto}
+#form-error:empty{display:none}
+.form-actions{height:auto;min-height:44px;margin-top:12px}
+.compact-hero{padding-bottom:16px}
+@media(max-width:720px){.form-card{min-height:0;padding-bottom:0}.compact-hero{padding-bottom:14px}}
 </style>
 </head>
 <body>
@@ -252,7 +261,7 @@ function render(focus=false){
  error.textContent='';
  document.getElementById('step-label').textContent=['','Your next move','Business revenue','Business history','Business banking','Current financing','Business details','Your contact','Your request'][step];
  document.getElementById('progress-fill').style.width=`${(step+1)/9*100}%`;
- actions.style.display='flex';
+ actions.style.display=step===0?'none':'flex';
  back.style.visibility=step===0?'hidden':'visible';
  next.style.display=step<6?'none':'inline-flex';
  next.textContent=step===8?'Fund ME':'Continue';
@@ -261,7 +270,7 @@ function render(focus=false){
   const q=questions[step];let help=q.help;
   if(step===2&&purposeCopy[data.purpose])help=`<strong>${purposeCopy[data.purpose][0]}</strong> ${purposeCopy[data.purpose][1]}`;
   const names=step===1?{'Working capital':'Keep operations moving','Inventory':'Restock for what’s next','Equipment':'Upgrade the tools you use','Expansion':'Grow your business','Other':'Something else'}:{};
-  content.innerHTML=`${goal}<h3 id="question-title" tabindex="-1">${q.title}</h3><p class="helper">${help}</p><div class="choices ${step===1?'purpose-choices':''}">${choices[q.field].map(v=>`<button type="button" class="choice" data-field="${q.field}" data-value="${esc(v)}" aria-pressed="${data[q.field]===v}"><span>${esc(v)}</span>${names[v]?`<small>${names[v]}</small>`:''}</button>`).join('')}</div><p class="journey-hint">Choose an option to continue.</p>`;
+  content.innerHTML=`${goal}<h3 id="question-title" tabindex="-1">${q.title}</h3><p class="helper">${help}</p><div class="choices ${step===1?'purpose-choices':''}">${choices[q.field].map(v=>`<button type="button" class="choice" data-field="${q.field}" data-value="${esc(v)}" aria-pressed="${data[q.field]===v}"><span>${esc(v)}</span>${names[v]?`<small>${names[v]}</small>`:''}</button>`).join('')}</div>`;
  }else if(step===6){
   content.innerHTML=`${goal}<h3 id="question-title" tabindex="-1">Let’s put a name to your next move.</h3><p class="helper">You’ve told us your plans. Which business are they for?</p><div class="fields">${field('business_name','Business name','text','organization',true)}${stateField()}</div>`;
  }else if(step===7){
