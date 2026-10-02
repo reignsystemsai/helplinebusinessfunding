@@ -1,0 +1,1 @@
+window.HELPLINE_CONFIG = {"url":"https://sjmkvufnmaaqtgjnrpha.supabase.co","anonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqbWt2dWZubWFhcXRnam5ycGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA5MDI0NDksImV4cCI6MjEwNjQ3ODQ0OX0.UpYwUIG7lF67YDrYumc4nJZL0D3RhYFog7U4eJczZUo"};
