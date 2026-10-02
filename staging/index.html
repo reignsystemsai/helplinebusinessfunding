@@ -183,6 +183,12 @@ input,select{border-radius:10px;min-height:52px}
 /* Keep the conversation visually open without repeated goal badges. */
 #step-content{scrollbar-width:none;scrollbar-gutter:auto;padding-right:0}
 #step-content::-webkit-scrollbar{display:none;width:0;height:0}
+
+/* Every step is fully visible; longer content expands into the page. */
+.form-card{height:auto;max-height:none;overflow:visible}
+#lead-form{min-height:auto}
+#step-content{flex:1 0 auto;min-height:auto;overflow:visible;overscroll-behavior:auto;scrollbar-gutter:auto}
+@media(max-width:720px){.form-card{height:auto;max-height:none}}
 </style>
 </head>
 <body>
