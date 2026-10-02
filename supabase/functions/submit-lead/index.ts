@@ -32,9 +32,9 @@ Deno.serve(async(req:Request)=>{
   if(splitNames&&['first_name','last_name'].some(key=>typeof body[key]!=='string'||!body[key].trim()||body[key].trim().length>100))return reply({error:'Please enter your first and last name.'},400);
   const firstName=splitNames?body.first_name.trim():null,lastName=splitNames?body.last_name.trim():null;
   const fullName=splitNames?firstName+' '+lastName:body.full_name.trim();
-  const phoneDigits=body.phone.replace(/\\D/g,'');
+  const phoneDigits=body.phone.replace(/\D/g,'');
   const nationalPhone=phoneDigits.length===11&&phoneDigits.startsWith('1')?phoneDigits.slice(1):phoneDigits;
-  if(!/^[2-9]\\d{2}[2-9]\\d{6}$/.test(nationalPhone))return reply({error:'Please enter a valid 10-digit U.S. phone number.'},400);
+  if(!/^[2-9]\d{2}[2-9]\d{6}$/.test(nationalPhone))return reply({error:'Please enter a valid 10-digit U.S. phone number.'},400);
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)||body.phone.replace(/\D/g,'').length<10||body.phone.length>30)return reply({error:'Please check your email and phone number.'},400);
   if(body.contact_consent!==true)return reply({error:'Please agree to follow-up about your request.'},400);
   if(typeof body.request_id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(body.request_id))return reply({error:'Invalid request reference.'},400);
