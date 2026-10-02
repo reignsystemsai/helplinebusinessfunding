@@ -45,7 +45,15 @@ Deno.serve(async(req:Request)=>{
   if(!rate.ok)return reply({error:'We couldn’t save your request. Please try again shortly.'},503);
   if((await rate.json()).length>=10)return reply({error:'Too many requests. Please try again later.'},429);
   const campaign:Record<string,string>={};if(body.campaign&&typeof body.campaign==='object')for(const key of ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'])if(typeof body.campaign[key]==='string')campaign[key]=body.campaign[key].slice(0,200);
-  const record={request_id:body.request_id,status:'New Lead',funding_amount:body.funding_amount,purpose:body.purpose,monthly_revenue:body.monthly_revenue,time_in_business:body.time_in_business,business_bank_account:body.business_bank_account==='Yes',existing_financing:body.existing_financing==='Yes',business_name:body.business_name.trim(),full_name:fullName,first_name:firstName,last_name:lastName,email:body.email.trim().toLowerCase(),phone:'+1'+nationalPhone,state,contact_consent:true,consent_version:'inquiry-v1',campaign,source_path:typeof body.source_path==='string'?body.source_path.slice(0,300):'/',is_staging:body.is_staging!==false,ip_hash:ipHash};
+  let partnerId=null;
+  if(typeof body.partner_slug==='string'&&body.partner_slug){
+   if(!/^[-a-z0-9]{1,160}$/.test(body.partner_slug))return reply({error:'Invalid partner link.'},400);
+   const partner=await fetch(`${url}/rest/v1/funding_partners?select=id&slug=eq.${encodeURIComponent(body.partner_slug)}&active=eq.true&limit=1`,{headers:apiHeaders});
+   if(!partner.ok)return reply({error:'Unable to verify referral. Please try again.'},503);
+   const partners=await partner.json();if(!partners.length)return reply({error:'This partner link is no longer active. Please start at helplinefunding.com.'},400);
+   partnerId=partners[0].id;
+  }
+  const record={partner_id:partnerId,request_id:body.request_id,status:'New Lead',funding_amount:body.funding_amount,purpose:body.purpose,monthly_revenue:body.monthly_revenue,time_in_business:body.time_in_business,business_bank_account:body.business_bank_account==='Yes',existing_financing:body.existing_financing==='Yes',business_name:body.business_name.trim(),full_name:fullName,first_name:firstName,last_name:lastName,email:body.email.trim().toLowerCase(),phone:'+1'+nationalPhone,state,contact_consent:true,consent_version:'inquiry-v1',campaign,source_path:typeof body.source_path==='string'?body.source_path.slice(0,300):'/',is_staging:body.is_staging!==false,ip_hash:ipHash};
   const result=await fetch(`${url}/rest/v1/funding_leads?on_conflict=request_id`,{method:'POST',headers:{...apiHeaders,'Prefer':'resolution=ignore-duplicates,return=minimal'},body:JSON.stringify(record)});
   if(!result.ok)return reply({error:'We couldn’t save your request. Please try again shortly.'},503);
   return reply({received:true});
