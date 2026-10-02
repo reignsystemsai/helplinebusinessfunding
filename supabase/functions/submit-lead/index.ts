@@ -1,4 +1,4 @@
-const allowedOrigins = new Set(['https://helplinefunding.com','https://www.helplinefunding.com','https://hlbfunding.com','https://www.hlbfunding.com']);
+const allowedOrigins = new Set(['https://helplinefunding.com','https://www.helplinefunding.com','https://hlbfunding.com','https://www.hlbfunding.com','https://helpline-funding-staging.reign-ai-sys-8696.chatgpt.site']);
 const url = Deno.env.get('SUPABASE_URL')!;
 const secret = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || JSON.parse(Deno.env.get('SUPABASE_SECRET_KEYS') || '{}').default;
 const apiHeaders = {'apikey':secret,'Authorization':`Bearer ${secret}`,'Content-Type':'application/json'};
