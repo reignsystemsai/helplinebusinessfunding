@@ -179,6 +179,10 @@ input,select{border-radius:10px;min-height:52px}
 .phone-entry input{border:0;border-radius:0;min-width:0;flex:1;padding-left:14px;background:transparent}
 .phone-entry:focus-within{outline:3px solid #80b6f5;outline-offset:4px}
 .phone-entry input:focus-visible{outline:0}
+
+/* Keep the conversation visually open without repeated goal badges. */
+#step-content{scrollbar-width:none;scrollbar-gutter:auto;padding-right:0}
+#step-content::-webkit-scrollbar{display:none;width:0;height:0}
 </style>
 </head>
 <body>
@@ -231,13 +235,13 @@ content.addEventListener('input',e=>{if(e.target.name==='state')e.target.setCust
 function collect(){content.querySelectorAll('input').forEach(el=>data[el.name]=el.type==='checkbox'?el.checked:el.value.trim());data.state=normalizeState(data.state);data.full_name=[data.first_name,data.last_name].filter(Boolean).join(' ');}
 function render(focus=false){
  error.textContent='';
- document.getElementById('step-label').textContent=['Your funding goal','Your next move','Business revenue','Business history','Business banking','Current financing','Business details','Your contact','Your request'][step];
+ document.getElementById('step-label').textContent=['','Your next move','Business revenue','Business history','Business banking','Current financing','Business details','Your contact','Your request'][step];
  document.getElementById('progress-fill').style.width=`${(step+1)/9*100}%`;
  actions.style.display='flex';
  back.style.visibility=step===0?'hidden':'visible';
  next.style.display=step<6?'none':'inline-flex';
  next.textContent=step===8?'Fund ME':'Continue';
- const goal=`<div class="goal-strip">${step>0?`<button type="button" class="goal-chip" data-edit-goal aria-label="Change your funding goal">Your goal: <strong>${esc(data.funding_amount)}</strong></button>`:'<span class="goal-label">Your next chapter starts here.</span>'}</div>`;
+ const goal='';
  if(step<6){
   const q=questions[step];let help=q.help;
   if(step===2&&purposeCopy[data.purpose])help=`<strong>${purposeCopy[data.purpose][0]}</strong> ${purposeCopy[data.purpose][1]}`;
