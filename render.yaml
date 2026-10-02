@@ -2,7 +2,7 @@ services:
   - type: web
     name: helplinebusinessfunding
     runtime: static
-    buildCommand: mkdir -p dist && cp index.html config.js dist/ && mkdir -p dist/staging && cp index.html dist/staging/index.html
+    buildCommand: mkdir -p dist && cp index.html config.js dist/ && mkdir -p dist/staging && cp staging/index.html dist/staging/index.html
     staticPublishPath: dist
     headers:
       - path: /*
