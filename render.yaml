@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: helplinebusinessfunding
+    runtime: static
+    buildCommand: mkdir -p dist && cp index.html config.js dist/ && mkdir -p dist/staging && cp index.html dist/staging/index.html
+    staticPublishPath: dist
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+    previews:
+      generation: automatic
