@@ -156,6 +156,18 @@ header .brand-symbol{width:38px;height:38px;min-width:38px;font-size:21px;line-h
  .start-benefits{justify-content:center;gap:8px 16px;font-size:12px}
  .benefits-note{max-width:290px;margin:9px auto 0}
 }
+
+/* A floating conversation, with no enclosing application frame. */
+.compact-hero{gap:36px}
+.form-card{border:0;border-radius:0;background:transparent;box-shadow:none;padding:22px 0 20px;max-width:440px;width:100%;justify-self:start}
+.form-top{font-size:11px;letter-spacing:1.2px}
+.progress{width:104px;margin-top:13px;margin-bottom:23px;border-radius:2px}
+.choice{border:1px solid #e5eaf0;border-radius:12px;background:#fff;box-shadow:0 5px 16px #10284106;transition:background .16s,border-color .16s,box-shadow .16s}
+.choice:hover{border-color:#cb9297;background:#fff9fa;box-shadow:0 7px 20px #1028410a}
+.choice[aria-pressed=true]{border-color:var(--red);background:#fff4f5}
+.form-privacy{border:0;padding-top:4px}
+@media(max-width:1000px){.compact-hero{gap:24px}.form-card{padding-left:0}}
+@media(max-width:720px){.compact-hero{gap:30px}.form-card{max-width:480px;justify-self:center;border:0;padding:16px 0 14px}.progress{margin-bottom:21px}}
 </style>
 </head>
 <body>
