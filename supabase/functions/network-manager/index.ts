@@ -28,7 +28,8 @@ Deno.serve(async(req:Request)=>{
   if(!access.ok||!(await access.json()).length)return reply({error:'This account has not been granted Network Manager access.'},403);
   if(body.action==='dashboard'){
    const page=Math.max(0,Math.min(100000,Number.isInteger(body.page)?body.page:0)),tests=body.include_tests===true;
-   const filters=new URLSearchParams({select:'id,created_at,updated_at,status,funding_amount,purpose,monthly_revenue,time_in_business,business_bank_account,existing_financing,business_name,first_name,last_name,full_name,email,phone,state,contact_consent,consent_version,campaign,source_path,is_staging,partner_id,notes',order:'created_at.desc',limit:'100',offset:String(page*100)});
+   const filters=new URLSearchParams({select:'id,created_at,updated_at,deleted_at,status,funding_amount,purpose,monthly_revenue,time_in_business,business_bank_account,existing_financing,business_name,first_name,last_name,full_name,email,phone,state,contact_consent,consent_version,campaign,source_path,is_staging,partner_id,notes',order:'created_at.desc',limit:'100',offset:String(page*100)});
+   filters.set('deleted_at',body.trash===true?'not.is.null':'is.null');
    if(!tests)filters.set('is_staging','eq.false');
    if(body.status&&statuses.includes(body.status))filters.set('status','eq.'+body.status);
    if(body.partner_id&&/^\d+$/.test(String(body.partner_id)))filters.set('partner_id','eq.'+body.partner_id);
@@ -39,14 +40,23 @@ Deno.serve(async(req:Request)=>{
    const results=await Promise.all([
     fetch(`${url}/rest/v1/funding_leads?${filters}`,{headers:{...adminHeaders,Prefer:'count=exact'}}),
     fetch(`${url}/rest/v1/funding_partner_summary?select=*&order=id.desc`,{headers:adminHeaders}),
-    fetch(`${url}/rest/v1/rpc/funding_manager_summary`,{method:'POST',headers:adminHeaders,body:JSON.stringify({include_tests:tests})})
+    fetch(`${url}/rest/v1/rpc/funding_manager_summary`,{method:'POST',headers:adminHeaders,body:JSON.stringify({include_tests:tests})}),
+    fetch(`${url}/rest/v1/rpc/funding_traffic_summary`,{method:'POST',headers:adminHeaders,body:'{}'})
    ]);
    if(results.some(r=>!r.ok))return reply({error:'Unable to load your network. Please try again.'},503);
-   return reply({leads:await results[0].json(),total:Number(results[0].headers.get('content-range')?.split('/')[1]||0),partners:await results[1].json(),summary:await results[2].json(),owner:user.email});
+   return reply({leads:await results[0].json(),total:Number(results[0].headers.get('content-range')?.split('/')[1]||0),partners:await results[1].json(),summary:await results[2].json(),owner:user.email,traffic:await results[3].json()});
+  }
+  
+  if(['trash_leads','restore_leads'].includes(body.action)){
+   if(!Array.isArray(body.ids)||!body.ids.length||body.ids.length>100||body.ids.some((id:unknown)=>typeof id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)))return reply({error:'Select up to 100 valid leads.'},400);
+   const restoring=body.action==='restore_leads',ids=[...new Set(body.ids)];
+   const r=await fetch(`${url}/rest/v1/funding_leads?id=in.(${ids.join(',')})&select=id`,{method:'PATCH',headers:{...adminHeaders,Prefer:'return=representation'},body:JSON.stringify({deleted_at:restoring?null:new Date().toISOString(),deleted_by:restoring?null:user.email,updated_at:new Date().toISOString()})});
+   if(!r.ok)return reply({error:'Could not update the selected leads.'},503);
+   return reply({saved:true,changed:(await r.json()).length});
   }
   if(body.action==='save_lead'){
    if(typeof body.id!=='string'||!/^[0-9a-f-]{36}$/i.test(body.id)||!statuses.includes(body.status)||typeof body.notes!=='string'||body.notes.length>10000)return reply({error:'Check the status and notes.'},400);
-   const r=await fetch(`${url}/rest/v1/funding_leads?id=eq.${body.id}`,{method:'PATCH',headers:{...adminHeaders,Prefer:'return=representation'},body:JSON.stringify({status:body.status,notes:body.notes,updated_at:new Date().toISOString()})});
+   const r=await fetch(`${url}/rest/v1/funding_leads?id=eq.${body.id}&deleted_at=is.null`,{method:'PATCH',headers:{...adminHeaders,Prefer:'return=representation'},body:JSON.stringify({status:body.status,notes:body.notes,updated_at:new Date().toISOString()})});
    if(!r.ok)return reply({error:'Could not save this lead.'},503);
    const rows=await r.json();return rows.length?reply({saved:true}):reply({error:'Lead not found.'},404);
   }
